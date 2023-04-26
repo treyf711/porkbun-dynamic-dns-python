@@ -29,25 +29,30 @@ def createRecord():
 	return(create)
 
 if len(sys.argv)>2: #at least the config and root domain is specified
-	apiConfig = json.load(open(sys.argv[1])) #load the config file into a variable
-	rootDomain=sys.argv[2].lower()
+        apiConfig = json.load(open(sys.argv[1])) #load the config file into a variable
+        rootDomain=sys.argv[2].lower()
 		
-	if len(sys.argv)>3 and sys.argv[3]!='-i': #check if a subdomain was specified as the third argument
-		subDomain=sys.argv[3].lower()
-		fqdn=subDomain + "." + rootDomain
-	else:
-		subDomain=''
-		fqdn=rootDomain
+        if len(sys.argv)>3 and sys.argv[3]!='-i': #check if a subdomain was specified as the third argument
+            subDomain=sys.argv[3].lower()
+            fqdn=subDomain + "." + rootDomain
+        else:
+            subDomain=''
+            fqdn=rootDomain
 
-	if len(sys.argv)>4 and sys.argv[3]=='-i': #check if IP is manually specified. There's probably a more-elegant way to do this
-		myIP=sys.argv[4]
-	elif len(sys.argv)>5 and sys.argv[4]=='-i':
-		myIP=sys.argv[5]
-	else:
-		myIP=getMyIP() #otherwise use the detected exterior IP address
-	
-	deleteRecord()
-	print(createRecord()["status"])
+        if len(sys.argv)>4 and sys.argv[3]=='-i': #check if IP is manually specified. There's probably a more-elegant way to do this
+            myIP=sys.argv[4]
+        elif len(sys.argv)>5 and sys.argv[4]=='-i':
+            myIP=sys.argv[5]
+        else:
+            print(getRecords(rootDomain)["records"][0]["content"])
+            myIP=getMyIP() #otherwise use the detected exterior IP address
+
+        if myIP != getRecords(rootDomain)["records"][0]["content"]:        	
+            deleteRecord()
+            print(createRecord()["status"])
+        else:
+            print("Current IP is: " + myIP)
+            print("Record IP is: " + getRecords(rootDomain)["records"][0]["content"])
 	
 else:
 	print("Porkbun Dynamic DNS client, Python Edition\n\nError: not enough arguments. Examples:\npython porkbun-ddns.py /path/to/config.json example.com\npython porkbun-ddns.py /path/to/config.json example.com www\npython porkbun-ddns.py /path/to/config.json example.com '*'\npython porkbun-ddns.py /path/to/config.json example.com -i 10.0.0.1\n")
